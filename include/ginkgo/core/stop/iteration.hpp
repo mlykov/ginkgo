@@ -6,9 +6,9 @@
 #define GKO_PUBLIC_CORE_STOP_ITERATION_HPP_
 
 
+#include <ginkgo/core/base/abstract_factory.hpp>
+#include <ginkgo/core/stop/combined.hpp>
 #include <ginkgo/core/stop/criterion.hpp>
-
-#include "ginkgo/core/base/abstract_factory.hpp"
 
 
 namespace gko {
@@ -81,6 +81,21 @@ protected:
  *         `with_criteria` function when building a solver.
  */
 deferred_factory_parameter<Iteration::Factory> max_iters(size_type count);
+
+
+deferred_factory_parameter<CriterionFactory> min_iters(
+    size_type count, deferred_factory_parameter<CriterionFactory> criterion);
+
+
+template <typename... Args>
+std::enable_if_t<sizeof...(Args) >= 2,
+                 deferred_factory_parameter<CriterionFactory>>
+min_iters(size_type count, Args&&... criteria)
+{
+    std::vector<deferred_factory_parameter<CriterionFactory>> criterion_vec{
+        std::forward<Args>(criteria)...};
+    return min_iters(count, Combined::build().with_criteria(criterion_vec));
+};
 
 
 }  // namespace stop
