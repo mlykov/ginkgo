@@ -8,10 +8,10 @@
 #include <gtest/gtest.h>
 
 #include <ginkgo/core/base/math.hpp>
+#include <ginkgo/core/stop/iteration.hpp>
 #include <ginkgo/core/stop/residual_norm.hpp>
 
 #include "core/test/utils.hpp"
-#include "ginkgo/core/stop/iteration.hpp"
 
 
 namespace {
