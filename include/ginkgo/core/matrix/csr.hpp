@@ -1,10 +1,12 @@
-// SPDX-FileCopyrightText: 2017 - 2025 The Ginkgo authors
+// SPDX-FileCopyrightText: 2017 - 2026 The Ginkgo authors
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
 #ifndef GKO_PUBLIC_CORE_MATRIX_CSR_HPP_
 #define GKO_PUBLIC_CORE_MATRIX_CSR_HPP_
 
+
+#include <string>
 
 #include <ginkgo/core/base/array.hpp>
 #include <ginkgo/core/base/index_set.hpp>
@@ -297,6 +299,36 @@ public:
         {
             return std::make_shared<merge_path>();
         }
+    };
+
+    class omp_spmm_variant : public strategy_type {
+    public:
+        explicit omp_spmm_variant(int version)
+            : strategy_type(make_variant_name(version)), version_(version)
+        {
+            GKO_ASSERT(version >= 1 && version <= 3);
+        }
+
+        int get_version() const noexcept { return version_; }
+
+        void process(const array<index_type>& mtx_row_ptrs,
+                     array<index_type>* mtx_srow) override
+        {}
+
+        int64_t clac_size(const int64_t nnz) override { return 0; }
+
+        std::shared_ptr<strategy_type> copy() override
+        {
+            return std::make_shared<omp_spmm_variant>(version_);
+        }
+
+    private:
+        static std::string make_variant_name(int version)
+        {
+            return std::string{"spmm_v"} + std::to_string(version);
+        }
+
+        int version_;
     };
 
     /**
@@ -1553,6 +1585,9 @@ protected:
             new_strat = std::make_shared<typename CsrType::classical>();
         } else if (dynamic_cast<merge_path*>(strat)) {
             new_strat = std::make_shared<typename CsrType::merge_path>();
+        } else if (auto* ov = dynamic_cast<omp_spmm_variant*>(strat)) {
+            new_strat = std::make_shared<typename CsrType::omp_spmm_variant>(
+                ov->get_version());
         } else if (dynamic_cast<cusparse*>(strat)) {
             new_strat = std::make_shared<typename CsrType::cusparse>();
         } else if (dynamic_cast<sparselib*>(strat)) {

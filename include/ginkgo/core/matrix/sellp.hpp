@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2017 - 2025 The Ginkgo authors
+// SPDX-FileCopyrightText: 2017 - 2026 The Ginkgo authors
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
@@ -7,6 +7,7 @@
 
 
 #include <ginkgo/core/base/array.hpp>
+#include <ginkgo/core/base/exception_helpers.hpp>
 #include <ginkgo/core/base/lin_op.hpp>
 
 
@@ -320,6 +321,15 @@ public:
                                          const dim<2>& size = {},
                                          size_type total_cols = 0);
 
+    /** OMP SpMM kernel version (1..2). */
+    void set_spmm_version(int version)
+    {
+        GKO_ASSERT(version >= 1 && version <= 2);
+        spmm_version_ = version;
+    }
+
+    int get_spmm_version() const noexcept { return spmm_version_; }
+
     /**
      * Creates an uninitialized Sellp matrix of the specified size.
      *
@@ -389,6 +399,7 @@ private:
     array<size_type> slice_sets_;
     size_type slice_size_;
     size_type stride_factor_;
+    int spmm_version_{1};
 };
 
 

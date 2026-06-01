@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2017 - 2025 The Ginkgo authors
+// SPDX-FileCopyrightText: 2017 - 2026 The Ginkgo authors
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
@@ -350,6 +350,15 @@ public:
     static std::unique_ptr<Fbcsr> create(std::shared_ptr<const Executor> exec,
                                          int block_size = 1);
 
+    /** OMP SpMM kernel version (1..3). */
+    void set_spmm_version(int version)
+    {
+        GKO_ASSERT(version >= 1 && version <= 3);
+        spmm_version_ = version;
+    }
+
+    int get_spmm_version() const noexcept { return spmm_version_; }
+
     /**
      * Creates an uninitialized FBCSR matrix of the specified size.
      *
@@ -479,6 +488,7 @@ private:
     array<value_type> values_;    ///< Non-zero values of all blocks
     array<index_type> col_idxs_;  ///< Block-column indices of all blocks
     array<index_type> row_ptrs_;  ///< Block-row pointers into @ref col_idxs_
+    int spmm_version_{1};
 };
 
 

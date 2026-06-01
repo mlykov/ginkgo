@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2017 - 2025 The Ginkgo authors
+// SPDX-FileCopyrightText: 2017 - 2026 The Ginkgo authors
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
@@ -672,8 +672,8 @@ TYPED_TEST(Dense, ComputesNorm2Squared)
     auto result = NormVector::create(this->exec, gko::dim<2>{1, 2});
 
     gko::kernels::reference::dense::compute_squared_norm2(
-        gko::as<gko::ReferenceExecutor>(this->exec), mtx.get(), result.get(),
-        tmp);
+        gko::as<gko::ReferenceExecutor>(this->exec),
+        mtx->get_const_device_view(), result->get_device_view(), tmp);
 
     EXPECT_EQ(result->at(0, 0), T_nc{9.0});
     EXPECT_EQ(result->at(0, 1), T_nc{25.0});
@@ -689,7 +689,7 @@ TYPED_TEST(Dense, ComputesSqrt)
     auto mtx(gko::initialize<NormVector>(I<I<T_nc>>{{9.0, 25.0}}, this->exec));
 
     gko::kernels::reference::dense::compute_sqrt(
-        gko::as<gko::ReferenceExecutor>(this->exec), mtx.get());
+        gko::as<gko::ReferenceExecutor>(this->exec), mtx->get_device_view());
 
     EXPECT_EQ(mtx->at(0, 0), T_nc{3.0});
     EXPECT_EQ(mtx->at(0, 1), T_nc{5.0});
@@ -1647,18 +1647,15 @@ void assert_strided_ell_eq_mtx6(
     ASSERT_EQ(ell_mtx->get_num_stored_elements_per_row(), 2);
     ASSERT_EQ(ell_mtx->get_num_stored_elements(), 6);
     ASSERT_EQ(ell_mtx->get_stride(), 3);
+    // only check the actual matrix entries.
     EXPECT_EQ(c[0], 0);
     EXPECT_EQ(c[1], 1);
-    EXPECT_EQ(c[2], invalid_index);
     EXPECT_EQ(c[3], 1);
     EXPECT_EQ(c[4], invalid_index);
-    EXPECT_EQ(c[5], invalid_index);
     EXPECT_EQ(v[0], ValueType{1.0});
     EXPECT_EQ(v[1], ValueType{1.5});
-    EXPECT_EQ(v[2], ValueType{0.0});
     EXPECT_EQ(v[3], ValueType{2.0});
     EXPECT_EQ(v[4], ValueType{0.0});
-    EXPECT_EQ(v[5], ValueType{0.0});
 }
 
 

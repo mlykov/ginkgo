@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2017 - 2025 The Ginkgo authors
+// SPDX-FileCopyrightText: 2017 - 2026 The Ginkgo authors
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
@@ -92,14 +92,13 @@ GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
 
 template <typename ValueType, typename IndexType>
 void scale(std::shared_ptr<const DefaultExecutor> exec,
-           const matrix::Dense<ValueType>* alpha,
+           matrix::view::dense<const ValueType> alpha,
            matrix::Csr<ValueType, IndexType>* x)
 {
     run_kernel(
         exec,
         [] GKO_KERNEL(auto nnz, auto alpha, auto x) { x[nnz] *= alpha[0]; },
-        x->get_num_stored_elements(), alpha->get_const_values(),
-        x->get_values());
+        x->get_num_stored_elements(), alpha.values, x->get_values());
 }
 
 GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(GKO_DECLARE_CSR_SCALE_KERNEL);
@@ -107,14 +106,13 @@ GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(GKO_DECLARE_CSR_SCALE_KERNEL);
 
 template <typename ValueType, typename IndexType>
 void inv_scale(std::shared_ptr<const DefaultExecutor> exec,
-               const matrix::Dense<ValueType>* alpha,
+               matrix::view::dense<const ValueType> alpha,
                matrix::Csr<ValueType, IndexType>* x)
 {
     run_kernel(
         exec,
         [] GKO_KERNEL(auto nnz, auto alpha, auto x) { x[nnz] /= alpha[0]; },
-        x->get_num_stored_elements(), alpha->get_const_values(),
-        x->get_values());
+        x->get_num_stored_elements(), alpha.values, x->get_values());
 }
 
 GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(GKO_DECLARE_CSR_INV_SCALE_KERNEL);
@@ -159,7 +157,7 @@ GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
 template <typename ValueType, typename IndexType>
 void convert_to_ell(std::shared_ptr<const DefaultExecutor> exec,
                     const matrix::Csr<ValueType, IndexType>* matrix,
-                    matrix::Ell<ValueType, IndexType>* output)
+                    matrix::view::ell<ValueType, IndexType> output)
 {
     run_kernel(
         exec,
@@ -177,10 +175,10 @@ void convert_to_ell(std::shared_ptr<const DefaultExecutor> exec,
                 out_idx += ell_stride;
             }
         },
-        output->get_size()[0], matrix->get_const_col_idxs(),
+        output.size[0], matrix->get_const_col_idxs(),
         matrix->get_const_values(), matrix->get_const_row_ptrs(),
-        output->get_num_stored_elements_per_row(), output->get_stride(),
-        output->get_col_idxs(), output->get_values());
+        output.num_stored_elements_per_row, output.stride, output.col_idxs,
+        output.values);
 }
 
 GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(

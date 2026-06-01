@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2017 - 2025 The Ginkgo authors
+// SPDX-FileCopyrightText: 2017 - 2026 The Ginkgo authors
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
@@ -10,20 +10,13 @@
 
 #include <hip/hip_complex.h>
 #include <hip/hip_fp16.h>
-
-#include <ginkgo/core/base/types.hpp>
-
-
-#if HIP_VERSION >= 50200000
 #include <hipblas/hipblas.h>
-#else
-#include <hipblas.h>
-#endif
 #include <thrust/complex.h>
 
 #include <ginkgo/core/base/bfloat16.hpp>
 #include <ginkgo/core/base/half.hpp>
 #include <ginkgo/core/base/matrix_data.hpp>
+#include <ginkgo/core/base/types.hpp>
 
 #include "common/cuda_hip/base/bf16_alias.hpp"
 #include "common/cuda_hip/base/runtime.hpp"
@@ -181,12 +174,20 @@ struct hipblas_type_impl<volatile T> {
 
 template <>
 struct hipblas_type_impl<std::complex<float>> {
+#if HIP_VERSION >= 70000000
+    using type = hipFloatComplex;
+#else
     using type = hipblasComplex;
+#endif
 };
 
 template <>
 struct hipblas_type_impl<std::complex<double>> {
+#if HIP_VERSION >= 70000000
+    using type = hipDoubleComplex;
+#else
     using type = hipblasDoubleComplex;
+#endif
 };
 
 template <typename T>
@@ -280,46 +281,81 @@ struct hip_type_impl<matrix_data_entry<ValueType, IndexType>> {
                           IndexType>;
 };
 
+#if HIP_VERSION >= 70000000
+using hipblasDataType = hipDataType;
+#else
+using hipblasDataType = hipblasDatatype_t;
+#endif
+
 template <typename T>
-constexpr hipblasDatatype_t hip_data_type_impl()
+constexpr hipblasDataType hip_data_type_impl()
 {
+#if HIP_VERSION >= 70000000
+    return HIP_C_16F;
+#else
     return HIPBLAS_C_16F;
+#endif
 }
 
 template <>
-constexpr hipblasDatatype_t hip_data_type_impl<half>()
+constexpr hipblasDataType hip_data_type_impl<half>()
 {
+#if HIP_VERSION >= 70000000
+    return HIP_R_16F;
+#else
     return HIPBLAS_R_16F;
+#endif
 }
 
 template <>
-constexpr hipblasDatatype_t hip_data_type_impl<bfloat16>()
+constexpr hipblasDataType hip_data_type_impl<bfloat16>()
 {
-    return HIPBLAS_R_16B;
+#if HIP_VERSION >= 70000000
+    return HIP_R_16F;
+#else
+    return HIPBLAS_R_16F;
+#endif
 }
 
 template <>
-constexpr hipblasDatatype_t hip_data_type_impl<float>()
+constexpr hipblasDataType hip_data_type_impl<float>()
 {
+#if HIP_VERSION >= 70000000
+    return HIP_R_32F;
+#else
     return HIPBLAS_R_32F;
+#endif
 }
 
 template <>
-constexpr hipblasDatatype_t hip_data_type_impl<double>()
+constexpr hipblasDataType hip_data_type_impl<double>()
 {
+#if HIP_VERSION >= 70000000
+    return HIP_R_64F;
+#else
     return HIPBLAS_R_64F;
+#endif
 }
 
 template <>
-constexpr hipblasDatatype_t hip_data_type_impl<std::complex<float>>()
+constexpr hipblasDataType hip_data_type_impl<std::complex<float>>()
 {
+#if HIP_VERSION >= 70000000
+    return HIP_C_32F;
+#else
     return HIPBLAS_C_32F;
+#endif
 }
 
 template <>
-constexpr hipblasDatatype_t hip_data_type_impl<std::complex<double>>()
+constexpr hipblasDataType hip_data_type_impl<std::complex<double>>()
 {
     return HIPBLAS_C_64F;
+#if HIP_VERSION >= 70000000
+    return HIP_C_64F;
+#else
+    return HIPBLAS_C_64F;
+#endif
 }
 
 
@@ -335,7 +371,7 @@ constexpr hipblasDatatype_t hip_data_type_impl<std::complex<double>>()
  * @returns the actual `hipblasDatatype_t`
  */
 template <typename T>
-constexpr hipblasDatatype_t hip_data_type()
+constexpr detail::hipblasDataType hip_data_type()
 {
     return detail::hip_data_type_impl<T>();
 }

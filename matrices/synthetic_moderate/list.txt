@@ -1,0 +1,9 @@
+spmm_mod_M50000_N1000.mtx
+spmm_mod_M100000_N1000.mtx
+spmm_mod_M200000_N1000.mtx
+spmm_mod_M5000_N5000.mtx
+spmm_mod_M8000_N8000.mtx
+spmm_mod_M10000_N10000.mtx
+spmm_mod_M1000_N50000.mtx
+spmm_mod_M1000_N100000.mtx
+spmm_mod_M1000_N200000.mtx

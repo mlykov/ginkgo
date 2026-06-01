@@ -40,6 +40,9 @@ function(ginkgo_benchmark_cusparse_linops type def)
         cusparse_linops_${type}
         PRIVATE Ginkgo::ginkgo CUDA::cudart CUDA::cublas CUDA::cusparse
     )
+    if(CUDAToolkit_VERSION VERSION_GREATER_EQUAL 13)
+        target_link_libraries(cusparse_linops_${type} PRIVATE Thrust)
+    endif()
     ginkgo_compile_features(cusparse_linops_${type})
 endfunction()
 
@@ -49,7 +52,7 @@ function(ginkgo_benchmark_hipsparse_linops type def)
         utils/hip_linops.hip.cpp
         PROPERTIES LANGUAGE HIP
     )
-    if(GINKGO_CUDA_CUSTOM_THRUST_NAMESPACE)
+    if(GINKGO_HIP_CUSTOM_THRUST_NAMESPACE)
         target_compile_definitions(
             hipsparse_linops_${type}
             PRIVATE THRUST_CUB_WRAPPED_NAMESPACE=gko

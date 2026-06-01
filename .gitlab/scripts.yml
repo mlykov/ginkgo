@@ -12,7 +12,7 @@
     - export CCACHE_DIR=${CCACHE_DIR}
     - export CCACHE_MAXSIZE=${CCACHE_MAXSIZE}
     - source /storage/apps/opt/spack/share/spack/setup-env.sh
-    - export MODULEPATH=/storage/apps/opt/rocm-modules:/storage/apps/opt/spack/share/spack/lmod/linux-rocky9-x86_64/Core
+    - export MODULEPATH="$(pwd)/lmod":/storage/apps/opt/rocm-modules:/storage/apps/opt/spack/share/spack/lmod/linux-rocky9-x86_64/Core
 
 .before_script_git_template:
   before_script:

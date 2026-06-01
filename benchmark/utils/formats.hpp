@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2017 - 2024 The Ginkgo authors
+// SPDX-FileCopyrightText: 2017 - 2026 The Ginkgo authors
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
@@ -47,6 +47,12 @@ std::string format_description =
     "     Irregular Sparse Matrices.\n"
     "csr: Compressed Sparse Row storage. Ginkgo implementation with\n"
     "     automatic strategy.\n"
+    "csr_spmm_v1..csr_spmm_v3: OMP CSR SpMM Gustavson variants (v1..v3).\n"
+    "sellp_spmm_v1..sellp_spmm_v2: OMP SELL-P SpMM Gustavson variants "
+    "(v1..v2).\n"
+    "fbcsr: OMP FBCSR (block_size=2) for reference SpMM timing.\n"
+    "fbcsr_spmm_v1..fbcsr_spmm_v3: OMP FBCSR SpMM Gustavson variants "
+    "(v1..v3).\n"
     "csrc: Ginkgo's CSR implementation with automatic strategy.\n"
     "csri: Ginkgo's CSR implementation with imbalance strategy.\n"
     "csrm: Ginkgo's CSR implementation with merge_path strategy.\n"
@@ -189,6 +195,18 @@ auto create_matrix_type(Args&&... args)
 }
 
 
+template <typename MatrixType, typename... Args>
+auto create_matrix_type_with_spmm_version(int spmm_version, Args&&... args)
+{
+    return [=](std::shared_ptr<const gko::Executor> exec)
+               -> std::unique_ptr<MatrixType> {
+        auto matrix = MatrixType::create(std::move(exec), args...);
+        matrix->set_spmm_version(spmm_version);
+        return matrix;
+    };
+}
+
+
 template <typename MatrixType, typename Strategy>
 auto create_matrix_type_with_gpu_strategy()
 {
@@ -204,6 +222,9 @@ const std::map<std::string, std::function<std::unique_ptr<gko::LinOp>(
                                 std::shared_ptr<const gko::Executor>)>>
     matrix_type_factory{
         {"csr", create_matrix_type_with_gpu_strategy<csr, csr::automatical>()},
+        {"csr_spmm_v1", create_matrix_type<csr>(std::make_shared<csr::omp_spmm_variant>(1))},
+        {"csr_spmm_v2", create_matrix_type<csr>(std::make_shared<csr::omp_spmm_variant>(2))},
+        {"csr_spmm_v3", create_matrix_type<csr>(std::make_shared<csr::omp_spmm_variant>(3))},
         {"csri", create_matrix_type_with_gpu_strategy<csr, csr::load_balance>()},
         {"csrm", create_matrix_type<csr>(std::make_shared<csr::merge_path>())},
         {"csrc", create_matrix_type<csr>(std::make_shared<csr::classical>())},
@@ -260,7 +281,24 @@ const std::map<std::string, std::function<std::unique_ptr<gko::LinOp>(
         {"hybridminstorage",
          create_matrix_type<hybrid>(
                      std::make_shared<hybrid::minimal_storage_limit>())},
-        {"sellp", create_matrix_type<gko::matrix::Sellp<etype, itype>>()}
+        {"sellp", create_matrix_type<gko::matrix::Sellp<etype, itype>>()},
+        {"sellp_spmm_v1",
+         create_matrix_type_with_spmm_version<gko::matrix::Sellp<etype, itype>>(
+             1)},
+        {"sellp_spmm_v2",
+         create_matrix_type_with_spmm_version<gko::matrix::Sellp<etype, itype>>(
+             2)},
+        {"fbcsr",
+         create_matrix_type<gko::matrix::Fbcsr<etype, itype>>(2)},
+        {"fbcsr_spmm_v1",
+         create_matrix_type_with_spmm_version<gko::matrix::Fbcsr<etype, itype>>(
+             1, 2)},
+        {"fbcsr_spmm_v2",
+         create_matrix_type_with_spmm_version<gko::matrix::Fbcsr<etype, itype>>(
+             2, 2)},
+        {"fbcsr_spmm_v3",
+         create_matrix_type_with_spmm_version<gko::matrix::Fbcsr<etype, itype>>(
+             3, 2)}
 };
 // clang-format on
 
