@@ -1,8 +1,5 @@
 SpMM Documentation
 
-git pull origin optimized-spmm-clean
-ssh mlykov@cluster.ginkgo-project.de
-
 -------------------------------------
 
 ## Changed & added files
@@ -122,6 +119,7 @@ mkdir -p build && cd build
 
 cmake .. \
   -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_CXX_FLAGS="-O3 -DNDEBUG -march=native -mavx512f -mavx512vl -mavx512dq -mprefer-vector-width=512" \
   -DGINKGO_BUILD_REFERENCE=ON \
   -DGINKGO_BUILD_OMP=ON \
   -DGINKGO_BUILD_TESTS=ON \
@@ -148,5 +146,3 @@ cmake --build . \
 ./omp/test/matrix/sellp_spmm_variant_kernels
 ./omp/test/matrix/fbcsr_spmm_variant_kernels
 ```
-
--------------------------------------
