@@ -65,19 +65,19 @@ ginkgo/
 
 -------------------------------------
 
-## Implementations overview: 
+## Implementations overview
 
-CSR-v0      Reused multi-RHS SpMV: dot product
-CSR-v1      Sequential Gustavson
-CSR-v2      Gustavson + parallelised over rows
-CSR-v3      Gustavson + parallelised over rows + SIMD over dense columns
-SELL-P-v0   Reused multi-RHS SpMV
-SELL-P-v1   Parallel per-slice Gustavson over the (slice, row) space (static)
-SELL-P-v2   SELL-P-v1 with SIMD over the K dense columns
-FBCSR-v0    Reused multi-RHS SpMV: sequential Gustavson
-FBCSR-v1    Parallel block-row Gustavson
-FBCSR-v2    Parallel block-row Gustavson + SIMD over dense columns
-FBCSR-v3    Parallel block-row Gustavson + SIMD over dense columns + 2x2 register tile and B-row reuse
+- **CSR-v0** — Reused multi-RHS SpMV: dot product
+- **CSR-v1** — Sequential Gustavson
+- **CSR-v2** — Gustavson + parallelised over rows
+- **CSR-v3** — Gustavson + parallelised over rows + SIMD over dense columns
+- **SELL-P-v0** — Reused multi-RHS SpMV
+- **SELL-P-v1** — Parallel per-slice Gustavson over the (slice, row) space (static)
+- **SELL-P-v2** — SELL-P-v1 with SIMD over the K dense columns
+- **FBCSR-v0** — Reused multi-RHS SpMV: sequential Gustavson
+- **FBCSR-v1** — Parallel block-row Gustavson
+- **FBCSR-v2** — Parallel block-row Gustavson + SIMD over dense columns
+- **FBCSR-v3** — Parallel block-row Gustavson + SIMD over dense columns + 2×2 register tile and B-row reuse
 
 -------------------------------------
 
